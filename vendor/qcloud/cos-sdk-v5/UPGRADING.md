@@ -1,19 +1,48 @@
 cos-php-sdk-v5 Upgrade Guide
 ====================
+
+2.0.8 to 2.0.9
+----------
+- Fix bug of `listObjectVersions`
+- Update `getObject` with param of `saveas`
+
+2.0.7 to 2.0.8
+----------
+- Fix presigned url when using tmpSecretId/tmpSecretKey/Token
+
+2.0.6 to 2.0.7
+----------
+- Fix response of `ListParts`
+
+2.0.5 to 2.0.6
+----------
+- Support Domain
+- Add Select Object Content Interface
+- Add Traffic Limit
+- Fix bug of object endswith /
+
+2.0.4 to 2.0.5
+----------
+- Fix bug when upload object with metadata
+
+2.0.3 to 2.0.4
+----------
+- Fix bug when using ip-port
+
 2.0.2 to 2.0.3
 ----------
-1. Fix path parse bug with /0/
+- Fix path parse bug with /0/
 
 2.0.1 to 2.0.2
 ----------
-1. Fix bug of `putObject` with `fopen`
-2. Add ut
+- Fix bug of `putObject` with `fopen`
+- Add ut
 
 
 2.0.0 to 2.0.1
 ----------
-1. Add interface of inventory/tagging/logging
-2. Fix bug of some interface with query string
+- Add interface of inventory/tagging/logging
+- Fix bug of some interface with query string
 
 
 1.3 to 2.0

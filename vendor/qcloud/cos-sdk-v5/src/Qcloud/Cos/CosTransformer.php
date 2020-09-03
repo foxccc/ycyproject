@@ -8,7 +8,6 @@ use GuzzleHttp\HandlerStack;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Qcloud\Cos\Signature;
-use Qcloud\Cos\TokenListener;
 use GuzzleHttp\Command\Guzzle\Description;
 use GuzzleHttp\Command\Guzzle\GuzzleClient;
 use GuzzleHttp\Command\CommandInterface;
@@ -16,6 +15,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7;
 use GuzzleHttp\Psr7\Uri;
+use InvalidArgumentException;
 
 
 class CosTransformer {
@@ -56,14 +56,20 @@ class CosTransformer {
                 $uri = str_replace("{/Key*}", encodeKey($command['Key']), $uri);
             }
         }
-        
-        $host = $bucketname. '.cos.' . $this->config['region'] . '.' . $this->config['endpoint'];
+        $origin_host = $bucketname. '.cos.' . $this->config['region'] . '.' . $this->config['endpoint'];
+        // domain
+        if ($this->config['domain'] != null) {
+            $origin_host = $this->config['domain'];
+        }
+        $host = $origin_host;
         if ($this->config['ip'] != null) {
             $host = $this->config['ip'];
             if ($this->config['port'] != null) {
                 $host = $this->config['ip'] . ":" . $this->config['port'];
             }
         }
+
+
         $path = $this->config['schema'].'://'. $host . $uri;
         $uri = new Uri($path);
         $query = $request->getUri()->getQuery();
@@ -71,7 +77,9 @@ class CosTransformer {
             $query =   $uri->getQuery() . "&" . $request->getUri()->getQuery();
         }
         $uri = $uri->withQuery($query);
-        return $request->withUri($uri);
+        $request = $request->withUri($uri);
+        $request = $request->withHeader('Host', $origin_host);
+        return $request;
     }
 
     // format upload body
@@ -91,7 +99,7 @@ class CosTransformer {
         if (null !== $body) {
             return $request;
         } else {
-            throw new Exception\InvalidArgumentException(
+            throw new InvalidArgumentException(
                 "You must specify a non-null value for the {$bodyParameter} or {$sourceParameter} parameters.");
         }
     }
@@ -113,6 +121,18 @@ class CosTransformer {
         return $request;
     }
 
+    // add meta
+    public function metadataTransformer(CommandInterface $command, $request) {
+        $operation = $this->operation;
+        if (isset($command['Metadata'])) {
+            $meta = $command['Metadata'];
+            foreach ($meta as $key => $value) {
+                $request = $request->withHeader('x-cos-meta-' . $key, $value);
+            }
+        }
+        return $request;
+    }
+
     // count md5
     private function addMd5($request) {
         $body = $request->getBody();
@@ -123,7 +143,7 @@ class CosTransformer {
         return $request;
     }
 
-    // count md5
+    // inventoryId
     public function specialParamTransformer(CommandInterface $command, $request) {
         $action = $command->getName();
         if ($action == 'PutBucketInventory') {

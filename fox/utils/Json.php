@@ -1,5 +1,5 @@
 <?php
-namespace my\utils;
+namespace fox\utils;
 
 use think\Response;
 
