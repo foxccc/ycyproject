@@ -31,4 +31,11 @@ class User extends BaseModel
     {
         return app('request')->ip();
     }
+
+    public static function getUserInfo($uid)
+    {
+        return self::where('uid', $uid)->select()->toArray();
+    }
+
+
 }

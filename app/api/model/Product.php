@@ -36,4 +36,9 @@ class Product extends BaseModel
     {
         return self::hasWhere('productPic',['pic_status'=>1])->where('category_id', $categoryId)->select()->toArray();
     }
+
+    public static function getProductInfo($pid)
+    {
+        return self::where('pid', $pid)->find()->toArray();
+    }
 }

@@ -1,5 +1,5 @@
 <?php
-namespace my\traits;
+namespace fox\traits;
 
 use think\Model;
 
